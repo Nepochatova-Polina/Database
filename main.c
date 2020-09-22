@@ -16,9 +16,9 @@ int main() {
     secondID = findMaxID(ReaderID);
 
     writeIntoReaders(RelID, ReaderID, firstID);
-    secondID++;
-    writeIntoBook(BookID, secondID);
     firstID++;
+    writeIntoBook(BookID, secondID);
+    secondID++;
 
     writeIDIntoFile(BookID, 1);
     writeIDIntoFile(ReaderID, 2);
