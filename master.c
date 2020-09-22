@@ -9,6 +9,7 @@ struct Reader get_m(int num, Node *ReaderID) {
         ReaderID = ReaderID->next;
     }
     file = fopen("Reader.bin", "ab+");
+    if (file == NULL)  printf("Error while opening");
     fseek(file, ReaderID->pos, SEEK_END);
     fread(&x, sizeof(struct Reader), 1, file);
     printf("%d %s %s %d", x.cardNum, x.name, x.surname, x.BookID);
@@ -25,6 +26,7 @@ void get_s(int num, Node *ReaderID) {
         ReaderID = ReaderID->next;
     }
     file = fopen("Book.bin", "ab+");
+    if (file == NULL)  printf("Error while opening");
     fread(&l, sizeof(struct Book), 1, file);
     printf("%s %s %d", l.name, l.author, l.yearOfPublishing);
 
@@ -70,6 +72,7 @@ void updateReader(Node *s, int num, Relation *l) {
         i++;
     }
     file = fopen("Reader.bin", "ab+");
+    if (file == NULL)  printf("Error while opening");
     fseek(file, sizeof(struct Reader), SEEK_SET);
     fread(&s, sizeof(struct Reader), 1, file);
     printf(" Old information\n ");
@@ -96,6 +99,7 @@ void updateBool(Node *s, int num) {
         i++;
     }
     file = fopen("Reader.bin", "ab+");
+    if (file == NULL)  printf("Error while opening");
     fseek(file, sizeof(struct Reader), SEEK_SET);
     fread(&s, sizeof(struct Reader), 1, file);
     printf(" Old information\n ");
