@@ -43,6 +43,7 @@ void writeIntoBook( Node *head, int max) {
     FILE *file;
     struct Book s;
     file = fopen("Book.bin", "ab+");
+    if (file == NULL)  printf("Error while opening");
     printf("enter name of book, author and year of publishing ");
     scanf("%s %s  %d", s.name, s.author, &s.yearOfPublishing);
     fwrite(&s, sizeof(s), 1, file);
@@ -63,6 +64,7 @@ void writeIntoReaders(Relation *Head, Node *head, int max) {
     struct Reader s;
     int n = 1;
     file = fopen("Reader.bin", "ab+");
+    if (file == NULL)  printf("Error while opening");
     printf("enter your name, surname and BookID");
     scanf(" %s %s %d", s.name, s.surname, &s.BookID);
     fwrite(&s, sizeof(s), 1, file);
