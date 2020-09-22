@@ -90,7 +90,7 @@ void updateReader(Node *s, int num, Relation *l) {
 
 }
 
-void updateBool(Node *s, int num) {
+void updateBook(Node *s, int num) {
     FILE *file;
     struct Book x;
     int i = 0;
