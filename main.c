@@ -3,6 +3,7 @@
 #include "utility.h"
 
 
+
 int main() {
     Node *BookID, *ReaderID;
     Relation *RelID;
@@ -21,7 +22,7 @@ int main() {
 
     writeIDIntoFile(BookID, 1);
     writeIDIntoFile(ReaderID, 2);
-     writeIDIntoRealFile(RelID);
+    writeIDIntoRealFile(RelID);
     return 0;
 }
 
@@ -34,11 +35,13 @@ Node *readArr(int flag) {
     switch (flag) {
         case 1:
             file = fopen("BookArr.bin", "ab+");
+            if (file == NULL)  printf("Error while opening");
             fseek(file, 0L, SEEK_END);
             pos = ftell(file) / sizeof(struct Node);
             break;
         case 2:
             file = fopen("ReaderArr.bin", "ab+");
+            if (file == NULL)  printf("Error while opening");
             fseek(file, 0L, SEEK_END);
             pos = ftell(file) / sizeof(struct Node);
             break;
@@ -69,6 +72,7 @@ void writeIDIntoFile(Node *head, int flag) {
             printf("wrong type!");
             break;
     }
+    if (file == NULL)  printf("Error while opening");
     while (head != NULL) {
         scanf("%d %d", &head->id, &head->pos);
         head = head->next;
@@ -81,8 +85,7 @@ Relation *readRelArr() {
     Relation *head = NULL;
     FILE *file;
     file = fopen("Realation.bin", "ab+");
-    if (file == NULL)
-        printf("Error while opening");
+    if (file == NULL) printf("Error while opening");
     fseek(file, 0L, SEEK_END);
     pos = ftell(file) / sizeof(struct Relation);
     Relation s[pos];
@@ -96,7 +99,8 @@ Relation *readRelArr() {
 void writeIDIntoRealFile(Relation *head) {
     FILE *file;
     file = fopen("RelationArr.bin", "wb+");
-        while (head != NULL) {
+    if (file == NULL)  printf("Error while opening");
+    while (head != NULL) {
         scanf("%d %d", &head->BookID, &head->cardNum);
         head = head->next;
     }
@@ -166,4 +170,3 @@ int findMaxID(Node *ID) {
     }
     return max;
 }
-
