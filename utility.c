@@ -2,40 +2,9 @@
 #include <stdio.h>
 
 
-void readBooks() {
-    FILE *file;
-    struct Book s;
-    file = fopen("Book.bin", "ab+");
-    if (file == NULL) {
-        printf("Error while opening");
-    } else {
-        while (!feof(file)) {
-            fread(&s, sizeof(struct Book), 1, file);
-            printf(" %d %s %s %d ", s.BookID, s.name, s.author, s.yearOfPublishing);
-        }
-    }
-    fclose(file);
-}
 
-void readReaders() {
-    FILE *file;
-    struct Reader s;
-
-    file = fopen("Reader.bin", "ab+");
-    if (file == NULL) {
-        printf("Error while opening");
-    } else {
-        while (!feof(file)) {
-            fread(&s, sizeof(struct Reader), 1, file);
-            printf(" %d %s %s %d ", s.cardNum, s.name, s.surname, s.BookID);
-        }
-    }
-    fclose(file);
-}
-
-void writeIntoBook(Node *head, int max) {
+Node *writeIntoBook(Node *head, int max) {
     Node *l;
-    struct Node x;
     FILE *file;
     struct Book s;
     file = fopen("Book.bin", "ab+");
@@ -44,45 +13,61 @@ void writeIntoBook(Node *head, int max) {
     } else {
         printf("enter name of book, author and year of publishing ");
         scanf("%s %s  %d", s.name, s.author, &s.yearOfPublishing);
-        s.BookID = max++;
+        s.BookID = ++max;
         fwrite(&s, sizeof(s), 1, file);
         fseek(file, 0L, SEEK_END);
         int pos = ftell(file) - sizeof(struct Book);
         if (pos == -1) {
             printf("error\n");
         } else {
-            pushBack(head, &s);
+            head = pushBack(head, s.BookID, pos);
             fclose(file);
         }
     }
+    return head;
 }
 
-void writeIntoReaders(Relation *Head, Node *head, int max) {
-    Relation z;
+
+void readBookByList(Node *head) {
     FILE *file;
-    struct Reader s;
-        file = fopen("Reader.bin", "ab+");
+    struct Book s;
+    file = fopen("Book.bin", "ab+");
     if (file == NULL) {
         printf("Error while opening");
     } else {
-        printf("enter your name, surname and BookID");
-        scanf(" %s %s %d", s.name, s.surname, &s.BookID);
-        s.cardNum = max++;
-        fwrite(&s, sizeof(s), 1, file);
-        fseek(file, 0L, SEEK_END);
-        int pos = ftell(file) - sizeof(struct Reader);
-        if (pos == -1) {
-            printf("error\n");
-        } else {
-            z.cardNum = s.cardNum;
-            z.BookID = s.BookID;
-            pushBack(head, &s);
-            pushIntoRel(Head, &z);
+        while (head != NULL) {
+            fseek(file, head->pos, SEEK_SET);
+            fread(&s, sizeof(struct Book), 1, file);
+            printf(" %d %s %s %d ", s.BookID, s.name, s.author, s.yearOfPublishing);
+            printf("\n");
+            head = head->next;
+            printf("\n");
+
         }
-        fclose(file);
+
     }
+    fclose(file);
 }
 
+
+void readReaderByList(Node *head) {
+    FILE *file;
+    struct Reader s;
+    file = fopen("Reader.bin", "ab+");
+    if (file == NULL) {
+        printf("Error while opening");
+    } else {
+        while (head != NULL) {
+            fseek(file, head->pos, SEEK_SET);
+            fread(&s, sizeof(struct Reader), 1, file);
+            printf(" %d %s %s %d ", s.cardNum, s.name, s.surname, s.BookID);
+            printf("\n");
+            head = head->next;
+        }
+
+    }
+    fclose(file);
+}
 
 
 
