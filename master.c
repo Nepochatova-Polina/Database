@@ -1,113 +1,149 @@
 #include "utility.h"
-#include "stdlib.h"
 #include <stdio.h>
 
-struct Reader get_m(int num, Node *ReaderID) {
+struct Reader get_m(Node *ReaderID, int num) {
     struct Reader x;
     FILE *file;
-    while (ReaderID->id != num) {
-        ReaderID = ReaderID->next;
+    if (ReaderID == NULL) {
+        printf("File is empty");
+    } else {
+        file = fopen("Reader.bin", "ab+");
+        if (file == NULL) {
+            printf("Error while opening");
+        } else {
+            while (ReaderID->id != num) {
+                ReaderID = ReaderID->next;
+            }
+            fseek(file, ReaderID->pos, SEEK_SET);
+            fread(&x, sizeof(struct Reader), 1, file);
+            printf("%d %s %s %d", x.cardNum, x.name, x.surname, x.BookID);
+            printf("\n");
+            fclose(file);
+            return x;
+        }
     }
-    file = fopen("Reader.bin", "ab+");
-    if (file == NULL)  printf("Error while opening");
-    fseek(file, ReaderID->pos, SEEK_END);
-    fread(&x, sizeof(struct Reader), 1, file);
-    printf("%d %s %s %d", x.cardNum, x.name, x.surname, x.BookID);
-    fclose(file);
-    return x;
 }
 
-void get_s(int num, Node *ReaderID) {
+void get_s(Node *ReaderID) {
+    int num;
+    printf("Enter number of recording\n");
+    scanf("%d", &num);
     FILE *file;
-    struct Book l;
-    struct Reader x = get_m(num, ReaderID);
-
+    struct Book s;
+    struct Reader x = get_m(ReaderID, num);
     while (ReaderID->id != x.BookID) {
         ReaderID = ReaderID->next;
     }
     file = fopen("Book.bin", "ab+");
-    if (file == NULL)  printf("Error while opening");
-    fread(&l, sizeof(struct Book), 1, file);
-    printf("%s %s %d", l.name, l.author, l.yearOfPublishing);
+    fread(&s, sizeof(struct Book), 1, file);
+    printf("%d %s %s %d", s.BookID, s.name, s.author, s.yearOfPublishing);
+    printf("\n");
 
 }
 
-void del_m(Node *head, Relation *Head, int index, int flag) {
+Node *delFromBook(Node *head) {
+    int index;
+    int i = 0;
+    printf("Enter number of recording\n");
+    scanf("%d", &index);
     Node *last;
     Relation *Last;
-    switch (flag) {
-//        delete from Book file
-        case 1:
-            while (head->id != index) {
-                last = head;
-                head = head->next;
-            }
-            last->next = head->next;
-//            delete from Reader
-        case 2:;
-            while (head->id != index) {
-                last = head;
-                head = head->next;
-            }
-            last->next = head->next;
+    if (head == NULL) {
+        printf("Your database is empty");
+    } else {
+        while (i < index) {
+            if (head == NULL) {
+                printf("There are no book with such ID number\n");
+                break;
+            } else {
 
-            while (Head != NULL) {
-                if (Head->cardNum != index) {
-                    Last = Head;
-                    Head = Head->next;
-                }
-                Last->next = Head->next;
+                last = head;
+                head = head->next;
+                i++;
             }
+        }
+        last->next = head->next;
     }
-
+    return head;
 }
 
+Node *delFromReader(Node *head, Relation *Head) {
+    int index;
+    printf("Enter number of recording\n");
+    scanf("%d", &index);
+    Node *last;
+    Relation *Last;
+    if (head == NULL) {
+        printf("Your database is empty");
+    } else {
+        while (head->id != index) {
+            last = head;
+            head = head->next;
+        }
+        last->next = head->next;
 
-void updateReader(Node *s, int num, Relation *l) {
+        while (Head != NULL) {
+            if (Head->cardNum != index) {
+                Last = Head;
+                Head = Head->next;
+            } else {
+                Last->next = Head->next;
+                Head = Head->next;
+            }
+        }
+    }
+    return head;
+}
+
+void updateReader(Node *s) {
+    int num;
+    printf("Enter number of recording\n");
+    scanf("%d", &num);
     FILE *file;
     struct Reader x;
-    int i = 0;
-    while (i < num) {
+    while (s->id < num) {
         s = s->next;
-        i++;
     }
-    file = fopen("Reader.bin", "ab+");
-    if (file == NULL)  printf("Error while opening");
-    fseek(file, sizeof(struct Reader), SEEK_SET);
-    fread(&s, sizeof(struct Reader), 1, file);
+    file = fopen("Reader.bin", "rb+");
+    if (file == NULL) printf("Error while opening");
+    fseek(file, s->pos, SEEK_SET);
+    fread(&x, sizeof(struct Reader), 1, file);
     printf(" Old information\n ");
-    printf(" %s %s %d", x.surname, x.name, x.BookID);
-    i = x.BookID;
+    printf(" %d %s %s %d",x.cardNum, x.name, x.surname, x.BookID);
+    printf("\n");
     printf(" Enter new information : ");
-    scanf(" %s %s %d ", x.surname, x.name, &x.BookID);
-    if(l->cardNum == x.cardNum && l->BookID == i){
-        l->BookID = x.BookID;
-    }else{
-        l = l->next;
-    }
-    fseek(file, sizeof(struct Reader), SEEK_SET);
+    scanf("%s %s %d", x.name, x.surname, &(x.BookID));
+    fseek(file, s->pos, SEEK_SET);
     fwrite(&x, sizeof(struct Reader), 1, file);
-
+    fclose(file);
 }
 
-void updateBook(Node *s, int num) {
+
+void updateBook(Node *s) {
+    int num;
+    printf("Enter number of recording\n");
+    scanf("%d", &num);
     FILE *file;
     struct Book x;
     int i = 0;
-    while (i < num) {
-        s = s->next;
-        i++;
+    if (s == NULL) {
+        printf("Your database is empty");
+    } else {
+        while (s->id < num) {
+            s = s->next;
+        }
+        file = fopen("Book.bin", "rb+");
+        if (file == NULL) printf("Error while opening");
+        fseek(file, s->pos, SEEK_SET);
+        fread(&x, sizeof(struct Book), 1, file);
+        printf(" Old information\n ");
+        printf(" %s %s %d", x.name, x.author, x.yearOfPublishing);
+        printf("\n");
+        printf(" Enter new data about name, author and yead of publishing : ");
+        scanf("%s %s %d", x.name, x.author, &x.yearOfPublishing);
+        fseek(file, s->pos, SEEK_SET);
+        fwrite(&x, sizeof(struct Book), 1, file);
+        fclose(file);
     }
-    file = fopen("Reader.bin", "ab+");
-    if (file == NULL)  printf("Error while opening");
-    fseek(file, sizeof(struct Reader), SEEK_SET);
-    fread(&s, sizeof(struct Reader), 1, file);
-    printf(" Old information\n ");
-    printf(" %s %s %d", x.name, x.author, x.yearOfPublishing);
-    i = x.BookID;
-    printf(" Enter new information : ");
-    scanf(" %s %s %d ",x.name, x.author, &x.yearOfPublishing);
-    fseek(file, sizeof(struct Book), SEEK_SET);
-    fwrite(&x, sizeof(struct Book), 1, file);
-
 }
+
